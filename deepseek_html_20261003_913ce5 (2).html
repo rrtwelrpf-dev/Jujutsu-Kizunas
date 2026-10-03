@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jujutsu Kizuna: Cursed Shenanigans — набор в команду</title>
+<style>
+  /* ============================================================
+     ПЕРЕМЕННЫЕ
+     ============================================================ */
+  :root {
+    --bg-deep: #060a12;
+    --bg-mid: #0d1420;
+    --card: rgba(16, 26, 42, 0.72);
+    --card-border: rgba(77, 225, 255, 0.18);
+    --card-border-hover: rgba(77, 225, 255, 0.55);
+    --cyan: #4de1ff;
+    --cyan-soft: rgba(77, 225, 255, 0.14);
+    --violet: #b46cff;
+    --violet-soft: rgba(180, 108, 255, 0.14);
+    --pink: #ff5fa2;
+    --red: #ff4d6d;
+    --gold: #ffce5c;
+    --green: #4de1a4;
+    --text: #eaf5ff;
+    --text-muted: #8fa6c4;
+    --white: #ffffff;
+    --radius: 16px;
+    --radius-sm: 12px;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    --shadow-hover: 0 18px 44px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(77, 225, 255, 0.3);
+    --transition: 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ============================================================
+     ФОН
+     ============================================================ */
+  .bg-gradient {
+    position: fixed; inset: 0; z-index: -3;
+    background:
+      radial-gradient(ellipse 55% 45% at 10% 0%,   rgba(77, 225, 255, 0.22), transparent 70%),
+      radial-gradient(ellipse 50% 45% at 92% 8%,  rgba(180, 108, 255, 0.22), transparent 70%),
+      radial-gradient(ellipse 65% 55% at 50% 100%, rgba(255, 77, 109, 0.12), transparent 70%),
+      linear-gradient(165deg, #101c34 0%, #070d18 45%, #04060c 100%);
+    pointer-events: none;
+  }
+
+  .bg-grid {
+    position: fixed; inset: -100px; z-index: -2;
+    background-image:
+      linear-gradient(rgba(77, 225, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(77, 225, 255, 0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 75% at 50% 40%, #000 35%, transparent 100%);
+            mask-image: radial-gradient(ellipse 80% 75% at 50% 40%, #000 35%, transparent 100%);
+    animation: gridDrift 45s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes gridDrift {
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(60px, 60px); }
+  }
+
+  .bg-blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.5; }
+  .blob--1 {
+    width: 460px; height: 460px; top: -140px; left: -120px;
+    background: radial-gradient(circle, rgba(77, 225, 255, 0.6), transparent 70%);
+    animation: float1 28s ease-in-out infinite;
+  }
+  .blob--2 {
+    width: 400px; height: 400px; top: 35%; right: -150px;
+    background: radial-gradient(circle, rgba(180, 108, 255, 0.55), transparent 70%);
+    animation: float2 34s ease-in-out infinite;
+  }
+  .blob--3 {
+    width: 380px; height: 380px; bottom: -160px; left: 30%;
+    background: radial-gradient(circle, rgba(255, 77, 109, 0.4), transparent 70%);
+    animation: float3 40s ease-in-out infinite;
+  }
+  @keyframes float1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(80px, 60px) scale(1.12); }
+  }
+  @keyframes float2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-90px, 60px) scale(1.08); }
+  }
+  @keyframes float3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(60px, -80px) scale(1.1); }
+  }
+
+  .bg-noise {
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      radial-gradient(rgba(77, 225, 255, 0.035) 1px, transparent 1px);
+    background-size: 34px 34px, 52px 52px;
+    background-position: 0 0, 17px 17px;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  /* ============================================================
+     КНОПКА ЗВУКА
+     ============================================================ */
+  .sound-toggle {
+    position: fixed; top: 18px; right: 18px; z-index: 100;
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    color: var(--cyan);
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow);
+    transition: transform var(--transition), box-shadow var(--transition),
+                background var(--transition), border-color var(--transition), color var(--transition);
+  }
+  .sound-toggle:hover {
+    transform: scale(1.08);
+    border-color: var(--card-border-hover);
+    box-shadow: 0 0 22px rgba(77, 225, 255, 0.45);
+    background: rgba(77, 225, 255, 0.16);
+  }
+  .sound-toggle:active { transform: scale(0.95); }
+  .sound-toggle svg { width: 22px; height: 22px; display: block; }
+  .sound-toggle.muted { color: var(--text-muted); border-color: rgba(120, 140, 180, 0.25); }
+  .sound-toggle.muted .sound-toggle__on  { display: none; }
+  .sound-toggle         .sound-toggle__off { display: none; }
+  .sound-toggle.muted  .sound-toggle__off { display: block; }
+
+  /* ============================================================
+     НАВИГАЦИЯ
+     ============================================================ */
+  .nav {
+    position: fixed; top: 18px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 90;
+    display: flex; gap: 4px;
+    padding: 6px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    backdrop-filter: blur(14px);
+    box-shadow: var(--shadow);
+  }
+  .nav a {
+    padding: 9px 18px;
+    font-size: 0.86rem; font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 999px;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+  .nav a:hover { color: var(--text); background: rgba(77, 225, 255, 0.08); }
+  .nav a.active {
+    color: #04121f;
+    background: linear-gradient(135deg, var(--cyan), #74dcff);
+    box-shadow: 0 6px 16px rgba(77, 225, 255, 0.4);
+  }
+  @media (max-width: 720px) {
+    .nav {
+      top: auto; bottom: 14px; left: 14px; right: 14px;
+      transform: none;
+      justify-content: space-around;
+      overflow-x: auto;
+    }
+    .nav a { padding: 8px 12px; font-size: 0.78rem; }
+  }
+
+  /* ============================================================
+     КОНТЕЙНЕР
+     ============================================================ */
+  .container {
+    position: relative; z-index: 2;
+    max-width: 1100px; margin: 0 auto;
+    padding: 90px 22px 110px;
+  }
+  @media (max-width: 720px) {
+    .container { padding: 80px 14px 120px; }
+  }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero {
+    min-height: 88vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 30px 0;
+  }
+
+  .logo-mark {
+    position: relative;
+    width: 130px; height: 130px;
+    margin-bottom: 26px;
+    display: grid; place-items: center;
+  }
+  .logo-mark__svg { width: 100%; height: 100%; }
+  .logo-mark::after {
+    content: '';
+    position: absolute; inset: -14px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(77, 225, 255, 0.35), transparent 70%);
+    filter: blur(18px);
+    z-index: -1;
+    animation: pulseGlow 4s ease-in-out infinite;
+  }
+  @keyframes pulseGlow {
+    0%, 100% { transform: scale(1);    opacity: 0.7; }
+    50%      { transform: scale(1.12); opacity: 1; }
+  }
+
+  .hero__badge {
+    display: inline-block;
+    padding: 7px 18px;
+    margin-bottom: 22px;
+    font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--cyan);
+    background: var(--cyan-soft);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5.5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    background: linear-gradient(100deg, #ffffff 15%, #a9e9ff 50%, #d0b3ff 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  h1 .accent {
+    background: linear-gradient(100deg, #4de1ff, #b46cff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero__sub {
+    font-size: clamp(1rem, 2.1vw, 1.18rem);
+    color: var(--text-muted);
+    max-width: 700px;
+    margin-bottom: 32px;
+  }
+  .hero__sub b { color: var(--text); font-weight: 600; }
+
+  .hero__actions {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* ============================================================
+     КНОПКИ
+     ============================================================ */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px;
+    font-family: inherit; font-size: 1rem; font-weight: 600;
+    color: #04121f;
+    background: linear-gradient(135deg, var(--cyan), #74dcff);
+    border: none; border-radius: 999px;
+    cursor: pointer; text-decoration: none;
+    box-shadow: 0 10px 26px rgba(77, 225, 255, 0.4);
+    transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+  }
+  .btn:hover {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow: 0 16px 34px rgba(77, 225, 255, 0.55);
+    filter: brightness(1.08);
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn svg { width: 18px; height: 18px; }
+
+  .btn--large {
+    padding: 18px 38px;
+    font-size: 1.08rem;
+  }
+
+  .btn--ghost {
+    background: transparent;
+    color: var(--cyan);
+    border: 1px solid var(--card-border-hover);
+    box-shadow: none;
+  }
+  .btn--ghost:hover {
+    background: var(--cyan-soft);
+    box-shadow: 0 12px 28px rgba(77, 225, 255, 0.28);
+  }
+
+  /* ============================================================
+     СЕКЦИИ
+     ============================================================ */
+  section { margin-top: 90px; scroll-margin-top: 100px; }
+
+  .section-head {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 10px;
+  }
+  .section-head__icon {
+    flex: 0 0 46px;
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    color: var(--cyan);
+    background: var(--cyan-soft);
+    border: 1px solid var(--card-border);
+    border-radius: 13px;
+    backdrop-filter: blur(8px);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .section-head__icon svg { width: 22px; height: 22px; }
+  .section-head:hover .section-head__icon {
+    transform: rotate(-8deg) scale(1.06);
+    box-shadow: 0 0 22px rgba(77, 225, 255, 0.4);
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+  .section-sub {
+    margin-bottom: 28px;
+    font-size: 0.98rem;
+    color: var(--text-muted);
+  }
+
+  /* ============================================================
+     АНИМАЦИЯ ПОЯВЛЕНИЯ
+     ============================================================ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ============================================================
+     О СЕРИАЛЕ
+     ============================================================ */
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .about-card {
+    padding: 26px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow);
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  }
+  .about-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--card-border-hover);
+    box-shadow: var(--shadow-hover);
+  }
+  .about-card__icon {
+    width: 46px; height: 46px;
+    margin-bottom: 16px;
+    display: grid; place-items: center;
+    color: var(--violet);
+    background: var(--violet-soft);
+    border: 1px solid rgba(180, 108, 255, 0.3);
+    border-radius: 12px;
+    transition: transform var(--transition);
+  }
+  .about-card:hover .about-card__icon { transform: rotate(-8deg) scale(1.08); }
+  .about-card__icon svg { width: 22px; height: 22px; }
+  .about-card h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--white); }
+  .about-card p { font-size: 0.94rem; color: var(--text-muted); }
+
+  /* ============================================================
+     РОЛИ
+     ============================================================ */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .role-card {
+    position: relative;
+    padding: 24px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  }
+  .role-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--cyan), var(--violet), var(--pink));
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .role-card:hover {
+    transform: translateY(-7px);
+    border-color: var(--card-border-hover);
+    box-shadow: var(--shadow-hover);
+  }
+  .role-card:hover::before { opacity: 1; }
+
+  .role-card__icon {
+    width: 52px; height: 52px;
+    margin-bottom: 16px;
+    display: grid; place-items: center;
+    border-radius: 14px;
+    color: #fff;
+    transition: transform var(--transition);
+  }
+  .role-card:hover .role-card__icon { transform: rotate(-8deg) scale(1.08); }
+  .role-card__icon svg { width: 26px; height: 26px; }
+
+  .role-card__icon--cyan   { background: linear-gradient(135deg, #4de1ff, #2b8de0); }
+  .role-card__icon--violet { background: linear-gradient(135deg, #b46cff, #7c3aed); }
+  .role-card__icon--pink   { background: linear-gradient(135deg, #ff5fa2, #d4327a); }
+  .role-card__icon--gold   { background: linear-gradient(135deg, #ffce5c, #d18f1c); }
+  .role-card__icon--green  { background: linear-gradient(135deg, #4de1a4, #1f9c69); }
+  .role-card__icon--red    { background: linear-gradient(135deg, #ff4d6d, #a81f38); }
+
+  .role-card h3 {
+    font-size: 1.05rem; font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .role-card p { font-size: 0.92rem; color: var(--text-muted); }
+
+  /* ============================================================
+     КАК ПРОЙТИ ОТБОР
+     ============================================================ */
+  .steps { display: flex; flex-direction: column; gap: 14px; }
+  .step {
+    display: flex; gap: 18px; align-items: flex-start;
+    padding: 20px 22px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow);
+    transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+  }
+  .step:hover {
+    transform: translateX(6px);
+    border-color: var(--card-border-hover);
+    box-shadow: var(--shadow-hover);
+  }
+  .step__num {
+    flex: 0 0 44px;
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    font-size: 1.1rem; font-weight: 800;
+    color: var(--cyan);
+    background: var(--cyan-soft);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+  }
+  .step__body h3 { font-size: 1.02rem; margin-bottom: 4px; color: var(--white); }
+  .step__body p { font-size: 0.92rem; color: var(--text-muted); }
+  .step__body code {
+    display: inline-block;
+    padding: 2px 8px;
+    font-family: inherit;
+    font-size: 0.88em; font-weight: 600;
+    color: var(--cyan);
+    background: rgba(77, 225, 255, 0.1);
+    border: 1px solid rgba(77, 225, 255, 0.28);
+    border-radius: 6px;
+  }
+
+  /* ============================================================
+     СЕКЦИЯ С ФОРМОЙ (CTA-КАРТОЧКА)
+     ============================================================ */
+  .apply-card {
+    position: relative;
+    padding: 44px 40px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(14px);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    text-align: center;
+  }
+  .apply-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 0%,   rgba(77, 225, 255, 0.14), transparent 60%),
+      radial-gradient(circle at 80% 100%, rgba(180, 108, 255, 0.14), transparent 60%);
+    pointer-events: none;
+  }
+  .apply-card > * { position: relative; z-index: 1; }
+
+  .apply-card__icon {
+    width: 70px; height: 70px;
+    margin: 0 auto 20px;
+    display: grid; place-items: center;
+    color: #04121f;
+    background: linear-gradient(135deg, var(--cyan), #74dcff);
+    border-radius: 20px;
+    box-shadow: 0 14px 34px rgba(77, 225, 255, 0.4);
+    animation: floatY 3.5s ease-in-out infinite;
+  }
+  @keyframes floatY {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+  .apply-card__icon svg { width: 34px; height: 34px; }
+
+  .apply-card h3 {
+    font-size: clamp(1.3rem, 3vw, 1.75rem);
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+  .apply-card p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 560px;
+    margin: 0 auto 26px;
+  }
+  .apply-card p b { color: var(--text); font-weight: 600; }
+
+  .apply-card__hint {
+    margin-top: 22px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .apply-card__hint svg {
+    width: 15px; height: 15px;
+    color: var(--cyan);
+    flex: 0 0 15px;
+  }
+
+  /* ============================================================
+     ФУТЕР
+     ============================================================ */
+  footer {
+    margin-top: 90px;
+    padding: 36px 20px 110px;
+    text-align: center;
+    border-top: 1px solid rgba(77, 225, 255, 0.14);
+    background: linear-gradient(180deg, transparent, rgba(77, 225, 255, 0.04));
+    position: relative; z-index: 2;
+  }
+  @media (max-width: 720px) { footer { padding-bottom: 130px; } }
+
+  footer .brand {
+    display: block;
+    font-size: clamp(1.4rem, 3.6vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    background: linear-gradient(100deg, #fff 20%, #4de1ff 55%, #b46cff 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+  }
+  footer p { font-size: 0.9rem; color: var(--text-muted); }
+
+  .footer-orgs {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  footer .tg {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px;
+    font-size: 0.92rem; font-weight: 600;
+    color: var(--cyan);
+    background: var(--cyan-soft);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    text-decoration: none;
+    transition: all var(--transition);
+  }
+  footer .tg:hover {
+    transform: translateY(-3px);
+    border-color: var(--card-border-hover);
+    box-shadow: 0 10px 26px rgba(77, 225, 255, 0.28);
+  }
+  footer .tg svg { width: 16px; height: 16px; }
+
+  footer .tg--violet {
+    color: var(--pink);
+    background: rgba(255, 95, 162, 0.12);
+    border-color: rgba(255, 95, 162, 0.3);
+  }
+  footer .tg--violet:hover {
+    border-color: rgba(255, 95, 162, 0.6);
+    box-shadow: 0 10px 26px rgba(255, 95, 162, 0.3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+    .reveal { opacity: 1; transform: none; }
+    .bg-grid, .blob, .logo-mark::after, .apply-card__icon { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- КНОПКА ЗВУКА -->
+<button class="sound-toggle" type="button" id="soundToggle" aria-label="Переключить звук" title="Звук вкл/выкл">
+  <svg class="sound-toggle__on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+       stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 5 6 9H3v6h3l5 4V5z"/>
+    <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+    <path d="M18.5 6a8.5 8.5 0 0 1 0 12"/>
+  </svg>
+  <svg class="sound-toggle__off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+       stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 5 6 9H3v6h3l5 4V5z"/>
+    <path d="M16 9.5l5 5"/>
+    <path d="M21 9.5l-5 5"/>
+  </svg>
+</button>
+
+<!-- НАВИГАЦИЯ -->
+<nav class="nav" id="nav">
+  <a href="#about" data-sound="click">О сериале</a>
+  <a href="#roles" data-sound="click">Роли</a>
+  <a href="#steps" data-sound="click">Отбор</a>
+  <a href="#apply" data-sound="click">Заявка</a>
+</nav>
+
+<!-- ФОН -->
+<div class="bg-gradient" aria-hidden="true"></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-blobs" aria-hidden="true">
+  <span class="blob blob--1"></span>
+  <span class="blob blob--2"></span>
+  <span class="blob blob--3"></span>
+</div>
+<div class="bg-noise" aria-hidden="true"></div>
+
+<div class="container">
+
+  <!-- ============================================================
+       HERO
+       ============================================================ -->
+  <header class="hero">
+    <div class="logo-mark reveal">
+      <svg class="logo-mark__svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="lgBg" cx="50%" cy="45%" r="65%">
+            <stop offset="0%"  stop-color="#1a2b48"/>
+            <stop offset="55%" stop-color="#0a1424"/>
+            <stop offset="100%" stop-color="#04060c"/>
+          </radialGradient>
+          <linearGradient id="lgText" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"  stop-color="#ffffff"/>
+            <stop offset="55%" stop-color="#a9e9ff"/>
+            <stop offset="100%" stop-color="#b46cff"/>
+          </linearGradient>
+          <filter id="lgGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="b"/>
+            <feMerge>
+              <feMergeNode in="b"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <circle cx="100" cy="100" r="94" fill="url(#lgBg)"/>
+        <g stroke="#4de1ff" stroke-opacity="0.55" fill="none" stroke-linecap="round">
+          <circle cx="100" cy="100" r="80" stroke-width="1.2"/>
+          <circle cx="100" cy="100" r="70" stroke-width="0.8" stroke-dasharray="2 6"/>
+          <path d="M100 20 L100 180" stroke-width="0.9" stroke-opacity="0.35"/>
+          <path d="M20 100 L180 100" stroke-width="0.9" stroke-opacity="0.35"/>
+        </g>
+        <g fill="#4de1ff">
+          <circle cx="100" cy="24" r="2.4"/>
+          <circle cx="176" cy="100" r="2.4"/>
+          <circle cx="24" cy="100" r="2.4"/>
+          <circle cx="100" cy="176" r="2.4"/>
+        </g>
+        <text x="100" y="122" font-family="'Inter', system-ui, sans-serif"
+              font-size="62" font-weight="800" letter-spacing="3"
+              text-anchor="middle" fill="url(#lgText)"
+              filter="url(#lgGlow)">JK</text>
+      </svg>
+    </div>
+
+    <span class="hero__badge reveal">Открыт набор в команду · 2026</span>
+
+    <h1 class="reveal">Jujutsu <span class="accent">Kizuna</span><br>Cursed Shenanigans</h1>
+
+    <p class="hero__sub reveal">
+      Roblox-сериал с духом «Магической битвы», собственной историей и
+      системой душ, вдохновлённой <b>Undertale</b>. Мы собираем команду
+      для съёмок — присоединяйся!
+    </p>
+
+    <div class="hero__actions reveal">
+      <a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSdaxiEDqVJdDnsWYu2LPSmQHQK-1fzZEd_78VWTxRCwp-Twww/viewform?usp=dialog"
+         target="_blank" rel="noopener noreferrer" data-sound="click">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Подать заявку
+      </a>
+      <a class="btn btn--ghost" href="#about" data-sound="click">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        Узнать больше
+      </a>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       О СЕРИАЛЕ
+       ============================================================ -->
+  <section id="about" class="reveal">
+    <div class="section-head">
+      <div class="section-head__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13.5"/>
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M8 7h8M8 11h5"/>
+        </svg>
+      </div>
+      <h2>О сериале</h2>
+    </div>
+    <p class="section-sub">Что такое Jujutsu Kizuna и чем он вдохновлён.</p>
+
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 16.8 5.7 21.4 8 14 2 9.4h7.6L12 2z"/>
+          </svg>
+        </div>
+        <h3>Атмосфера «Магической битвы»</h3>
+        <p>За обычной жизнью скрываются проклятия, магия и опасные столкновения. Каждая встреча может превратиться в битву, а за спокойствием персонажей — собственные тайны и истории.</p>
+      </div>
+
+      <div class="about-card">
+        <div class="about-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/>
+            <path d="M8 7h6M8 11h6M8 15h4"/>
+          </svg>
+        </div>
+        <h3>Собственная история</h3>
+        <p>У сериала свой сюжет, свои герои и собственные правила мира. Мы не копируем канон — мы развиваем вселенную, вдохновлённую оригиналом.</p>
+      </div>
+
+      <div class="about-card">
+        <div class="about-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 21s-7-4.5-7-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-7 11-7 11z"/>
+            <path d="M9 12h2v3M15 9v6"/>
+          </svg>
+        </div>
+        <h3>Система душ (Undertale)</h3>
+        <p>У каждого персонажа есть цвет души, который определяет его характер и способности. Как в Undertale — душа влияет на бой и на сюжет.</p>
+      </div>
+
+      <div class="about-card">
+        <div class="about-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="14" rx="3"/>
+            <path d="M10 9l5 3-5 3V9z" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <h3>Формат: Roblox-сериал</h3>
+        <p>Все сцены снимаются в Roblox (в том числе в JJS), а сложные моменты доделываются 3D-анимацией и монтажом. Эпизоды выходят на YouTube.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       РОЛИ
+       ============================================================ -->
+  <section id="roles" class="reveal">
+    <div class="section-head">
+      <div class="section-head__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <h2>Кого мы ищем</h2>
+    </div>
+    <p class="section-sub">6 направлений — выбери то, что тебе ближе.</p>
+
+    <div class="roles-grid">
+
+      <div class="role-card">
+        <div class="role-card__icon role-card__icon--pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2"/>
+          </svg>
+        </div>
+        <h3>Актёры</h3>
+        <p>Играют персонажей во время съёмок: двигаются, участвуют в сценах и передают эмоции героя.</p>
+      </div>
+
+      <div class="role-card">
+        <div class="role-card__icon role-card__icon--gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"/>
+            <path d="M5 21V7l7-4 7 4v14"/>
+            <path d="M9 21v-6h6v6"/>
+          </svg>
+        </div>
+        <h3>Билдеры</h3>
+        <p>Строят места, где будут проходить события сериала: города, здания, арены и другие локации в JJS.</p>
+      </div>
+
+      <div class="role-card">
+        <div class="role-card__icon role-card__icon--cyan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/>
+          </svg>
+        </div>
+        <h3>Мувсеттеры</h3>
+        <p>Создают движения и боевые приёмы персонажей в JJS: удары, комбо, способности и специальные атаки.</p>
+      </div>
+
+      <div class="role-card">
+        <div class="role-card__icon role-card__icon--violet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 7l-7 5 7 5V7z"/>
+            <rect x="1" y="5" width="15" height="14" rx="3"/>
+          </svg>
+        </div>
+        <h3>Операторы / камера</h3>
+        <p>Управляют камерой во время съёмок: выбирают ракурсы, движения камеры и делают сцены более зрелищными.</p>
+      </div>
+
+      <div class="role-card">
+        <div class="role-card__icon role-card__icon--green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3v12"/>
+            <circle cx="18" cy="6" r="3"/>
+            <circle cx="6" cy="18" r="3"/>
+            <path d="M18 9a9 9 0 0 1-9 9"/>
+          </svg>
+        </div>
+        <h3>Монтажёры</h3>
+        <p>Собирают готовые эпизоды из отснятых сцен: добавляют музыку, эффекты, переходы и нужный темп.</p>
+      </div>
+
+      <div class="role-card">
+        <div class="role-card__icon role-card__icon--red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
+            <path d="M12 12l9-5M12 12v10M12 12 3 7"/>
+          </svg>
+        </div>
+        <h3>3D-аниматоры</h3>
+        <p>Создают отдельные 3D-сцены и анимации, которые невозможно или неудобно сделать непосредственно в JJS.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       КАК ПРОЙТИ ОТБОР
+       ============================================================ -->
+  <section id="steps" class="reveal">
+    <div class="section-head">
+      <div class="section-head__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+      </div>
+      <h2>Как пройти отбор</h2>
+    </div>
+    <p class="section-sub">4 простых шага — от первого сообщения до ответа команды.</p>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="step__num">1</div>
+        <div class="step__body">
+          <h3>Заполни Google Форму</h3>
+          <p>Нажми кнопку «Подать заявку» — откроется форма. Заполни все поля и отправь. Заявка автоматически придёт организаторам.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step__num">2</div>
+        <div class="step__body">
+          <h3>Если ты хочешь стать актёром — подготовь анкету персонажа</h3>
+          <p>Создай собственного персонажа: имя, возраст, внешность, характер, способности, техники, цвет души и краткую предысторию. Всё это — прямо в форме заявки.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step__num">3</div>
+        <div class="step__body">
+          <h3>Выбери роль в команде</h3>
+          <p>Актёр, билдер, мувсеттер, оператор, монтажёр или 3D-аниматор — отметь одну из ролей в форме.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step__num">4</div>
+        <div class="step__body">
+          <h3>Дождись ответа</h3>
+          <p>После отправки заявки мы свяжемся с тобой в Telegram и сообщим дальнейшие шаги. Не обязательно иметь огромный опыт — главное желание!</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CTA: ПОДАТЬ ЗАЯВКУ
+       ============================================================ -->
+  <section id="apply" class="reveal">
+    <div class="section-head">
+      <div class="section-head__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2 11 13"/>
+          <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+      </div>
+      <h2>Подать заявку</h2>
+    </div>
+    <p class="section-sub">Заполни анкету — это займёт 2–3 минуты.</p>
+
+    <div class="apply-card">
+      <div class="apply-card__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6"/>
+          <path d="M9 13h6M9 17h4"/>
+        </svg>
+      </div>
+      <h3>Заявка в команду Jujutsu Kizuna</h3>
+      <p>
+        Мы собираем команду для съёмок Roblox-сериала. Заполни форму — укажи
+        <b>имя, возраст, роль, опыт</b>, а если идёшь на актёра — добавь
+        <b>анкету персонажа</b>.
+      </p>
+
+      <a class="btn btn--large"
+         href="https://docs.google.com/forms/d/e/1FAIpQLSdaxiEDqVJdDnsWYu2LPSmQHQK-1fzZEd_78VWTxRCwp-Twww/viewform?usp=dialog"
+         target="_blank" rel="noopener noreferrer" data-sound="click">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <path d="M15 3h6v6"/>
+          <path d="M10 14 21 3"/>
+        </svg>
+        Открыть форму заявки
+      </a>
+
+      <div class="apply-card__hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        Форма откроется в новой вкладке. Ответы приходят организаторам автоматически.
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ФУТЕР -->
+<footer>
+  <span class="brand">Jujutsu Kizuna</span>
+  <p>Cursed Shenanigans · Roblox-сериал · 2026</p>
+
+  <div class="footer-orgs">
+    <a class="tg" href="https://t.me/PgersYT" target="_blank" rel="noopener noreferrer" data-sound="click">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 2 11 13"/>
+        <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+      </svg>
+      @PgersYT
+    </a>
+    <a class="tg tg--violet" href="https://t.me/NATRIA22852" target="_blank" rel="noopener noreferrer" data-sound="click">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 2 11 13"/>
+        <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+      </svg>
+      @NATRIA22852
+    </a>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   0. ЗВУК (механическая клавиатура)
+   ============================================================ */
+const Sound = (() => {
+  let ctx = null;
+  let muted = false;
+  try { muted = localStorage.getItem('jkSiteMuted') === '1'; } catch (e) {}
+
+  function getCtx() {
+    if (ctx) return ctx;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    ctx = new AC();
+    return ctx;
+  }
+
+  function playKey({
+    noiseFreq = 2600, noiseQ = 1.2, noiseGain = 0.09,
+    noiseDuration = 0.025,
+    thumpFreq = 200, thumpGain = 0.05, thumpDuration = 0.06,
+    delay = 0
+  } = {}) {
+    if (muted) return;
+    const audio = getCtx();
+    if (!audio) return;
+    if (audio.state === 'suspended') audio.resume();
+
+    const t0 = audio.currentTime + delay;
+
+    const noiseLen = Math.max(1, Math.floor(audio.sampleRate * noiseDuration));
+    const buf = audio.createBuffer(1, noiseLen, audio.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < noiseLen; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / noiseLen, 2.2);
+    }
+    const src = audio.createBufferSource();
+    src.buffer = buf;
+
+    const bp = audio.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = noiseFreq; bp.Q.value = noiseQ;
+    const lp = audio.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 6000;
+    const ng = audio.createGain();
+    ng.gain.setValueAtTime(noiseGain, t0);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t0 + noiseDuration);
+
+    src.connect(bp); bp.connect(lp); lp.connect(ng); ng.connect(audio.destination);
+    src.start(t0); src.stop(t0 + noiseDuration + 0.01);
+
+    const osc = audio.createOscillator();
+    const og = audio.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(thumpFreq, t0);
+    osc.frequency.exponentialRampToValueAtTime(thumpFreq * 0.55, t0 + thumpDuration);
+    og.gain.setValueAtTime(0.0001, t0);
+    og.gain.exponentialRampToValueAtTime(thumpGain, t0 + 0.005);
+    og.gain.exponentialRampToValueAtTime(0.0001, t0 + thumpDuration);
+    osc.connect(og); og.connect(audio.destination);
+    osc.start(t0); osc.stop(t0 + thumpDuration + 0.02);
+  }
+
+  const sounds = {
+    hover()  { playKey({ noiseFreq: 3200, noiseQ: 1.6, noiseGain: 0.022, noiseDuration: 0.018,
+                         thumpFreq: 260, thumpGain: 0.012, thumpDuration: 0.035 }); },
+    click()  { playKey({ noiseFreq: 2400, noiseQ: 1.1, noiseGain: 0.07,  noiseDuration: 0.028,
+                         thumpFreq: 180, thumpGain: 0.05,  thumpDuration: 0.07 }); },
+    success(){ [2400, 2600, 2900, 3200].forEach((f, i) => playKey({
+                 noiseFreq: f, noiseQ: 1.2 + i * 0.1,
+                 noiseGain: 0.05, noiseDuration: 0.022,
+                 thumpFreq: 200 + i * 35, thumpGain: 0.04, thumpDuration: 0.055,
+                 delay: i * 0.08 }));
+    }
+  };
+
+  return {
+    play(name) { if (muted) return; const fn = sounds[name]; if (fn) fn(); },
+    isMuted() { return muted; },
+    toggle() {
+      muted = !muted;
+      try { localStorage.setItem('jkSiteMuted', muted ? '1' : '0'); } catch (e) {}
+      if (!muted) sounds.click();
+      return muted;
+    },
+    unlock() { const a = getCtx(); if (a && a.state === 'suspended') a.resume(); }
+  };
+})();
+
+(function initSoundToggle() {
+  const btn = document.getElementById('soundToggle');
+  if (!btn) return;
+  if (Sound.isMuted()) btn.classList.add('muted');
+  btn.addEventListener('click', () => {
+    Sound.unlock();
+    const m = Sound.toggle();
+    btn.classList.toggle('muted', m);
+  });
+  btn.addEventListener('mouseenter', () => Sound.play('hover'));
+})();
+
+/* ============================================================
+   1. ЗВУКИ НА ЭЛЕМЕНТАХ
+   ============================================================ */
+(function initUiSounds() {
+  let lastHover = 0;
+  const HOVER_COOLDOWN = 120;
+  function playHover() {
+    const now = performance.now();
+    if (now - lastHover < HOVER_COOLDOWN) return;
+    lastHover = now;
+    Sound.play('hover');
+  }
+  document.querySelectorAll(
+    '.btn, .about-card, .role-card, .step, .nav a, footer .tg, .apply-card'
+  ).forEach(el => el.addEventListener('mouseenter', playHover));
+
+  document.addEventListener('click', (e) => {
+    Sound.unlock();
+    const el = e.target.closest('[data-sound="click"], .btn, .nav a');
+    if (el) Sound.play('click');
+  }, { passive: true });
+})();
+
+/* ============================================================
+   2. ПОЯВЛЕНИЕ ПРИ СКРОЛЛЕ
+   ============================================================ */
+(function initReveal() {
+  const els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(el => el.classList.add('visible'));
+    return;
+  }
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(el => obs.observe(el));
+})();
+
+/* ============================================================
+   3. АКТИВНАЯ ССЫЛКА В НАВИГАЦИИ
+   ============================================================ */
+(function initNavHighlight() {
+  const links = document.querySelectorAll('.nav a');
+  const sections = [...document.querySelectorAll('section[id]')];
+  if (!links.length || !sections.length) return;
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+
+  sections.forEach(s => obs.observe(s));
+})();
+
+/* ============================================================
+   4. ПЛАВНЫЙ СКРОЛЛ
+   ============================================================ */
+(function initSmoothScroll() {
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (event) => {
+      const id = link.getAttribute('href');
+      if (id === '#') return;
+      const target = document.querySelector(id);
+      if (!target) return;
+      event.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
